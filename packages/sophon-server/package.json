@@ -1,0 +1,16 @@
+{
+  "name": "@sophonjs/server",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "peerDependencies": {
+    "socket.io": "^4.6.0"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sophonjs/server": "*",
+    "socket.io": "^4.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "start": "tsc --build && node ./dist",
+    "sophon": "sophondev generate ./schema.sophon -t ts-socketio-server -o ./src/schema.ts"
+  }
+}

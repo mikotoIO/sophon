@@ -1,0 +1,10 @@
+struct Person {
+  name: string;
+  age: int;
+}
+
+service Main {
+  adder(x: int, y: int): int;
+  hello(p: Person): string;
+  ~ping(n: int);
+}
