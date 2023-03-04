@@ -4,7 +4,14 @@ struct Person {
 }
 
 service Main {
+  child: Child;
+
   adder(x: int, y: int): int;
   hello(p: Person): string;
   ~ping(n: int);
+}
+
+service Child {
+  hello(): string;
+  ~pong(s: string);
 }

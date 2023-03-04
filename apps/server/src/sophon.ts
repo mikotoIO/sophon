@@ -1,3 +1,2 @@
-import { SophonEngine } from './sophon-engine';
-
-export const sophon = new SophonEngine();
+import { SophonRouter } from '@sophonjs/server';
+export const sophon = new SophonRouter();

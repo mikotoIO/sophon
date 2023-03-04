@@ -12,16 +12,30 @@ export interface Person {
 export class MainServiceSender {
   constructor(private sender: SenderCore, private room: string) {}
   ping(n: number) {
-    this.sender.emit(this.room, 'Main/ping', n);
+    this.sender.emit(this.room, 'ping', n);
   }
 }
 
 export abstract class AbstractMainService {
   readonly NAMESPACE = 'Main';
   static readonly SENDER = MainServiceSender;
+  readonly $!: (room: string) => MainServiceSender;
+  abstract child: AbstractChildService;
+  abstract adder(ctx: SophonInstance, x: number, y: number): Promise<number>;
+  abstract hello(ctx: SophonInstance, p: Person): Promise<string>;
+}
 
-  readonly $: (room: string) => MainServiceSender;
+export class ChildServiceSender {
+  constructor(private sender: SenderCore, private room: string) {}
+  pong(s: string) {
+    this.sender.emit(this.room, 'child/pong', s);
+  }
+}
 
-  abstract adder(x: number, y: number, ctx: SophonInstance): Promise<number>;
-  abstract hello(p: Person, ctx: SophonInstance): Promise<string>;
+export abstract class AbstractChildService {
+  readonly NAMESPACE = 'Child';
+  static readonly SENDER = ChildServiceSender;
+  readonly $!: (room: string) => ChildServiceSender;
+  
+  abstract hello(ctx: SophonInstance): Promise<string>;
 }
