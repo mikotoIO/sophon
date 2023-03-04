@@ -35,7 +35,7 @@ function useStream<T>(
 function TestApp({ client }: {
   client: Awaited<ReturnType<typeof createClient>>;
 }) {
-  useStream(client.main.ping.bind(client.main), (x) => {
+  useStream(client.ping.bind(client), (x) => {
     console.log(x);
   }, []);
   const [count, setCount] = useState(0);
@@ -53,10 +53,18 @@ function TestApp({ client }: {
         <button
           onClick={async () => {
             // client.main.adder(2, 3).then((r) => console.log(r));
-            console.log(await client.main.hello({ name: 'Bob', age: 20 }));
+            console.log(await client.hello({ name: 'Bob', age: 20 }));
           }}
         >
           count is {count}
+        </button>
+        <button
+          onClick={async () => {
+            // client.main.adder(2, 3).then((r) => console.log(r));
+            console.log(await client.child.hello());
+          }}
+        >
+          Child test
         </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR

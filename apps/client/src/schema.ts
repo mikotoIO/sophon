@@ -23,30 +23,43 @@ class SocketClient {
 }
 
 class MainClient {
-  constructor(private socket: SocketClient) {}
+  readonly child: ChildClient;
+  constructor(private socket: SocketClient) {
+    this.child = new ChildClient(socket);
+  }
   adder(x: number, y: number): Promise<number> {
-    return this.socket.call('Main/adder', x, y);
+    return this.socket.call('adder', x, y);
   }
   hello(p: Person): Promise<string> {
-    return this.socket.call('Main/hello', p);
+    return this.socket.call('hello', p);
   }
 
   ping(handler: (n: number) => void) {
-    return this.socket.subscribe('Main/ping', handler);
+    return this.socket.subscribe('ping', handler);
+  }
+}
+
+class ChildClient {
+  
+  constructor(private socket: SocketClient) {
+    
+  }
+  hello(): Promise<string> {
+    return this.socket.call('child/hello', );
+  }
+
+  pong(handler: (s: string) => void) {
+    return this.socket.subscribe('child/pong', handler);
   }
 }
 
 export function createClient(url: string) {
-  return new Promise<{
-    main: MainClient;
-  }>((resolve) => {
+  return new Promise<MainClient>((resolve) => {
     const socket = io(url);
 
     socket.once('connect', () => {
       const socketClient = new SocketClient(socket);
-      resolve({
-        main: new MainClient(socketClient),
-      });
+      resolve(new MainClient(socketClient));
     });
   });
 }

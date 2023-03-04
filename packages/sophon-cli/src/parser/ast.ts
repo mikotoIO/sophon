@@ -8,7 +8,7 @@ export class ASTField {
   constructor(public name: string, public type: ASTType) {}
 }
 
-export class ASTServiceField<T = ASTFunction | ASTService> {
+export class ASTServiceField<T = ASTFunction | ASTType> {
   constructor(public name: string, public type: T) {}
 }
 

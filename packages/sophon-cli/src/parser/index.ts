@@ -65,6 +65,8 @@ const lexer = buildLexer([
 const FILE = rule<TokenKind, ASTTopLevel[]>();
 const STRUCT = rule<TokenKind, ASTStruct>();
 const SERVICE = rule<TokenKind, ASTService>();
+// method(p1, p2): return;
+const SERVICE_METHOD = rule<TokenKind, ASTServiceField<ASTFunction>>();
 const PARAM = rule<TokenKind, ASTField>();
 const FIELD = rule<TokenKind, ASTField>();
 const TYPE = rule<TokenKind, ASTType>();
@@ -107,6 +109,27 @@ TYPE.setPattern(
 
 FILE.setPattern(rep_sc(alt(STRUCT, SERVICE)));
 
+SERVICE_METHOD.setPattern(
+  apply(
+    seq(
+      opt(tok(TokenKind.Tilde)),
+      tok(TokenKind.Name),
+      tok(TokenKind.LParen),
+      opt(list_sc(PARAM, tok(TokenKind.Comma))),
+      tok(TokenKind.RParen),
+      opt(apply(seq(tok(TokenKind.Colon), TYPE), (x) => x[1])),
+      tok(TokenKind.Semicolon),
+    ),
+    ([prefix, name, _, input, __, output]) => {
+      return new ASTServiceField(
+        name.text,
+        new ASTFunction(input ?? [], output ?? 'void', prefix !== undefined),
+      );
+    },
+  ),
+);
+
+
 SERVICE.setPattern(
   apply(
     seq(
@@ -114,34 +137,11 @@ SERVICE.setPattern(
       tok(TokenKind.Name),
       tok(TokenKind.LBrace),
       rep_sc(
-        seq(
-          opt(tok(TokenKind.Tilde)),
-          tok(TokenKind.Name),
-          tok(TokenKind.LParen),
-          opt(list_sc(PARAM, tok(TokenKind.Comma))),
-          tok(TokenKind.RParen),
-          opt(apply(seq(tok(TokenKind.Colon), TYPE), (x) => x[1])),
-          tok(TokenKind.Semicolon),
-        ),
+        alt(SERVICE_METHOD, apply(FIELD, (x) => new ASTServiceField(x.name, x.type)))
       ),
       tok(TokenKind.RBrace),
     ),
-    ([_, name, __, m]) => {
-      const methods: ASTServiceField[] = m.map(
-        ([prefix, name, _, input, __, output]) => {
-          {
-            return new ASTServiceField(
-              name.text,
-              new ASTFunction(
-                input ?? [],
-                output ?? 'void',
-                prefix !== undefined,
-              ),
-            );
-          }
-        },
-      );
-
+    ([_, name, __, methods]) => {
       return new ASTService(name.text, methods);
     },
   ),
