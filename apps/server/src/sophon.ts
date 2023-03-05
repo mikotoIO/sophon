@@ -1,2 +1,16 @@
 import { SophonRouter } from '@sophonjs/server';
-export const sophon = new SophonRouter();
+import { SophonContext } from './schema';
+
+declare module './schema' {
+  interface SophonContext {
+    count: number;
+  }
+}
+
+export const sophon = new SophonRouter<SophonContext>({
+  connect: ({}) => {
+    return {
+      count: 0,
+    };
+  },
+});

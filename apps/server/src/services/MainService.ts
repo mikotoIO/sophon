@@ -1,30 +1,22 @@
-import { Person, AbstractMainService, AbstractChildService } from '../schema';
+import { MainService, ChildService } from '../schema';
 import { sophon } from '../sophon';
-import { SophonInstance } from '@sophonjs/server';
 
-export const childService = sophon.createService(
-  () =>
-    class ChildService extends AbstractChildService {
-      async hello(ctx: SophonInstance): Promise<string> {
-        ctx.join('child');
-        return `Hello child!`;
-      }
-    },
-);
+const childService = sophon.create(ChildService, {
+  async hello(ctx) {
+    return `hello, ${ctx.data.count++}`;
+  },
+});
 
-export const mainService = sophon.createService(
-  () =>
-    class MainService extends AbstractMainService {
-      readonly child = childService;
+export const mainService = sophon.create(MainService, {
+  child: childService,
 
-      async adder(ctx: SophonInstance, x: number, y: number): Promise<number> {
-        return x + y;
-      }
+  async hello(ctx, p) {
+    ctx.join('room1');
+    mainService.$('room1').ping(40000);
+    return 'hello, world!';
+  },
 
-      async hello(ctx: SophonInstance, p: Person): Promise<string> {
-        ctx.join('main');
-        this.$('main').ping(42069);
-        return `Hello ${p.name}!`;
-      }
-    },
-);
+  async adder(ctx, x, y) {
+    return x + y;
+  },
+});

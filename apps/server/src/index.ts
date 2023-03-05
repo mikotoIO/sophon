@@ -10,7 +10,7 @@ const io = new Server(httpServer, {
   },
 });
 
-sophon.mount(io, [mainService]);
+sophon.mount(io, mainService);
 
 httpServer.listen(3000, () => {
   console.log('listening on *:3000');

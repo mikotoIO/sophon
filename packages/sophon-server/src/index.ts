@@ -1,32 +1,19 @@
 import { Server, Socket } from 'socket.io';
 
-export interface SophonService {
-  NAMESPACE: string;
-}
-
 export function createHandler(
-  services: SophonService[],
+  rootService: any,
 ): (socket: Socket, event: string, ...args: any[]) => void {
-  const serviceMap: Record<string, SophonService> = {};
-  services.forEach((x) => {
-    serviceMap[x.NAMESPACE] = x;
-  });
-
   return (socket, event, ...args) => {
     const cb = args.pop();
     const namespaces = event.split('/');
     const method = namespaces.pop();
 
-    const service = namespaces.reduce(
-      (s, x) => (s as any)[x],
-      serviceMap['Main'],
-    );
+    const service = namespaces.reduce((s, x) => (s as any)[x], rootService);
 
     if (!service) return;
     const handler = (service as any)[method!];
     if (handler) {
-      const boundHandler = handler.bind(service);
-      const result = boundHandler(new SophonInstance(socket), ...args);
+      const result = handler(new SophonInstance(socket), ...args);
       result
         .then((x: any) => cb(x))
         .catch((e: any) => {
@@ -37,24 +24,46 @@ export function createHandler(
   };
 }
 
-export class SophonRouter {
+type Sender<T> = (room: string) => T;
+
+interface SophonRouterConstructorOptions<Context> {
+  connect: (obj: {
+    id: string;
+    readonly params: Record<string, string>;
+  }) => Context;
+}
+
+export class SophonRouter<Context> {
   private io!: Server;
+  private options: SophonRouterConstructorOptions<Context>;
 
-  createService<T extends SophonService>(fn: () => { new (): T }): T {
-    const ctor = fn();
-    const service = new ctor();
-    (service as any).$ = (room: string) => {
-      return new (ctor as any).SENDER(new SenderCore(this.io), room);
-    };
-
-    return service;
+  constructor(options: SophonRouterConstructorOptions<Context>) {
+    this.options = options;
   }
 
-  mount(io: Server, services: SophonService[]) {
+  create<T, S>(
+    creator: ((fn: () => T, meta: any) => any) & {
+      SENDER: { new (sender: SenderCore, room: string): S };
+    },
+    fn: T,
+  ) {
+    return creator(() => fn, {
+      senderFn: (room: string) =>
+        new creator.SENDER(new SenderCore(this.io), room),
+    }) as T & { $: Sender<S> };
+  }
+
+  mount(io: Server, rootService: any) {
     this.io = io;
-    const handler = createHandler(services);
+    const handler = createHandler(rootService);
     io.on('connection', (socket) => {
-      socket.join('main');
+      const ctxSetup = this.options.connect({
+        id: socket.id,
+        params: socket.handshake.query as any,
+      });
+      for (const ctxKey in ctxSetup) {
+        socket.data[ctxKey] = ctxSetup[ctxKey];
+      }
 
       socket.onAny((event, ...args) => {
         handler(socket, event, ...args);
@@ -63,8 +72,15 @@ export class SophonRouter {
   }
 }
 
-export class SophonInstance {
-  constructor(private socket: Socket) {}
+export class SophonInstance<T = any> {
+  public id: string;
+  public data: T;
+
+  constructor(private socket: Socket) {
+    this.id = socket.id;
+    this.data = socket.data as any;
+  }
+
   join(room: string) {
     this.socket.join(room);
   }
