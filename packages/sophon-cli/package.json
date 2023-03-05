@@ -1,7 +1,7 @@
 {
   "name": "@sophonjs/cli",
   "version": "0.0.0",
-  "description": "Real-time typesafe API anywhere",
+  "description": "Real-time typesafe API anywhere.",
   "author": "TheCactusBlue @Randomness",
   "bin": {
     "sophon": "./bin/run"
