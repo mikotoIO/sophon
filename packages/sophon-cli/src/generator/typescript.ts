@@ -192,8 +192,14 @@ class SocketClient {
   constructor(public socket: Socket) {}
 
   call(event: string, ...args: any[]): any {
-    return new Promise((resolve) => {
-      this.socket.emit(event, ...args, resolve);
+    return new Promise((resolve, reject) => {
+      this.socket.emit(event, ...args, (x: any) => {
+        if (x.err !== undefined) {
+          reject(x.err);
+        } else {
+          resolve(x.ok);
+        }
+      });
     });
   }
 
@@ -215,7 +221,7 @@ ${ts(
     );
 
     return t`
-class ${svc.name}Client {
+export class ${svc.name}Client {
   ${ts(services.map((x) => `readonly ${x.name}: ${x.type}Client;`))}
   constructor(private socket: SocketClient) {
     ${ts(services.map((x) => `this.${x.name} = new ${x.type}Client(socket);`))}
@@ -251,15 +257,18 @@ ${x.name}(handler: (${
   '\n\n',
 )}
 
-export function createClient(url: string) {
-  return new Promise<MainClient>((resolve) => {
-    const socket = io(url);
+export function createClient(
+  options: { url: string, params?: Record<string, string> },
+  onConnect: (client: MainClient) => void,
+) {
+  const socket = io(options.url, { query: options.params });
 
-    socket.once('connect', () => {
-      const socketClient = new SocketClient(socket);
-      resolve(new MainClient(socketClient));
-    });
+  socket.once('connect', () => {
+    const socketClient = new SocketClient(socket);
+    onConnect(new MainClient(socketClient));
   });
+
+  return () => { socket.disconnect(); }
 }
 `.build();
 }

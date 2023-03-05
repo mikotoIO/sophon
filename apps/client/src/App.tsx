@@ -1,21 +1,13 @@
 import { DependencyList, useEffect, useState } from 'react';
 import './App.css';
 
-import { createClient } from './schema';
+import { createClient, MainClient } from './schema';
 
 function useClient(url: string) {
-  const [client, setClient] = useState<Awaited<
-    ReturnType<typeof createClient>
-  > | null>(null);
+  const [client, setClient] = useState<MainClient | null>(null);
   useEffect(() => {
-    createClient(url).then((x) => {
-      setClient(x);
-    });
-    return () => {
-      if (client) {
-      }
-    };
-  }, []);
+    return createClient({ url }, c => setClient(c));
+  }, [url])
   return client;
 }
 
@@ -33,7 +25,7 @@ function useStream<T>(
 }
 
 function TestApp({ client }: {
-  client: Awaited<ReturnType<typeof createClient>>;
+  client: MainClient;
 }) {
   useStream(client.ping.bind(client), (x) => {
     console.log(x);

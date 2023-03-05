@@ -1,5 +1,12 @@
 import { Server, Socket } from 'socket.io';
 
+export class SophonError {
+  constructor(private body: unknown) {}
+  toJSON() {
+    return this.body;
+  }
+}
+
 export function createHandler(
   rootService: any,
 ): (socket: Socket, event: string, ...args: any[]) => void {
@@ -7,7 +14,6 @@ export function createHandler(
     const cb = args.pop();
     const namespaces = event.split('/');
     const method = namespaces.pop();
-
     const service = namespaces.reduce((s, x) => (s as any)[x], rootService);
 
     if (!service) return;
@@ -15,10 +21,9 @@ export function createHandler(
     if (handler) {
       const result = handler(new SophonInstance(socket), ...args);
       result
-        .then((x: any) => cb(x))
+        .then((x: any) => cb({ok: x}))
         .catch((e: any) => {
-          console.log(e);
-          cb('error!');
+          cb({ err: e });
         });
     }
   };

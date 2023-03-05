@@ -11,8 +11,14 @@ class SocketClient {
   constructor(public socket: Socket) {}
 
   call(event: string, ...args: any[]): any {
-    return new Promise((resolve) => {
-      this.socket.emit(event, ...args, resolve);
+    return new Promise((resolve, reject) => {
+      this.socket.emit(event, ...args, (x: any) => {
+        if (x.err !== undefined) {
+          reject(x.err);
+        } else {
+          resolve(x.ok);
+        }
+      });
     });
   }
 
@@ -22,7 +28,7 @@ class SocketClient {
   }
 }
 
-class MainClient {
+export class MainClient {
   readonly child: ChildClient;
   constructor(private socket: SocketClient) {
     this.child = new ChildClient(socket);
@@ -39,7 +45,7 @@ class MainClient {
   }
 }
 
-class ChildClient {
+export class ChildClient {
   
   constructor(private socket: SocketClient) {
     
@@ -53,13 +59,16 @@ class ChildClient {
   }
 }
 
-export function createClient(url: string) {
-  return new Promise<MainClient>((resolve) => {
-    const socket = io(url);
+export function createClient(
+  options: { url: string, params?: Record<string, string> },
+  onConnect: (client: MainClient) => void,
+) {
+  const socket = io(options.url, { query: options.params });
 
-    socket.once('connect', () => {
-      const socketClient = new SocketClient(socket);
-      resolve(new MainClient(socketClient));
-    });
+  socket.once('connect', () => {
+    const socketClient = new SocketClient(socket);
+    onConnect(new MainClient(socketClient));
   });
+
+  return () => { socket.disconnect(); }
 }
