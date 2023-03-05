@@ -7,9 +7,6 @@ on:
 
 jobs:
   publish:
-    defaults:
-      run:
-        working-directory: ./packages/sophon-cli
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,6 +15,8 @@ jobs:
           node-version: 16
       - run: yarn
       - run: yarn build
+        working-directory: ./packages/sophon-cli
       - uses: JS-DevTools/npm-publish@v1
+        working-directory: ./packages/sophon-cli
         with:
           token: ${{ secrets.NPM_TOKEN }}
