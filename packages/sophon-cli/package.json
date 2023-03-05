@@ -9,7 +9,7 @@
   "homepage": "https://github.com/TheCactusBlue/sophon",
   "license": "MIT",
   "main": "dist/index.js",
-  "repository": "TheCactusBlue/sophon",
+  "repository": "mikotoIO/sophon",
   "files": [
     "/bin",
     "/dist",
