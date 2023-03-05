@@ -1,0 +1,29 @@
+struct Channel {
+  id: string;
+  spaceId: string;
+  name: string;
+  order: int;
+  lastUpdated: string;
+  type: string;
+}
+
+struct Space {
+  id: string;
+  name: string;
+  channels: Channel[];
+  roles: Role[];
+}
+
+struct Role {
+  id: string;
+  name: string;
+  color: string?;
+  permissions: string;
+  position: int;
+}
+
+service MainService {
+}
+
+service ChannelService {
+}
