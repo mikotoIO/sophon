@@ -81,10 +81,10 @@ class ServiceTree {
     });
   }
   getPath(child: string) {
-    if (child === 'Main') return [];
+    if (child === 'MainService') return [];
     const path = [this.fieldNames[child]];
     let parent = this.childToParent[child];
-    while (parent !== 'Main') {
+    while (parent !== 'MainService') {
       path.push(this.fieldNames[parent]);
       parent = this.childToParent[parent];
     }
@@ -113,7 +113,7 @@ export function typescriptSocketIOServer(tree: ASTTopLevel[]): string {
     );
 
     return t`
-export class ${svc.name}ServiceSender {
+export class ${svc.name}Sender {
   constructor(private sender: SenderCore, private room: string) {}
   ${ts(
     reversedMethods.map(
@@ -128,8 +128,8 @@ ${fn.name}(${fn.type.input.map((f) => tg.genField(f))}) {
   )}
 }
 
-export interface I${svc.name}Service {
-  ${ts(services.map((s) => `${s.name}: I${s.type}Service;`))}
+export interface I${svc.name} {
+  ${ts(services.map((s) => `${s.name}: I${s.type};`))}
   ${ts(
     methods.map(
       (m) =>
@@ -143,18 +143,18 @@ export interface I${svc.name}Service {
   )}
 }
 
-function fn${svc.name}Service(
+function fn${svc.name}(
   fn: (props: {
-    $: (room: string) => ${svc.name}ServiceSender,
-  }) => I${svc.name}Service,
-    meta: { senderFn: (room: string) => ${svc.name}ServiceSender },
+    $: (room: string) => ${svc.name}Sender,
+  }) => I${svc.name},
+    meta: { senderFn: (room: string) => ${svc.name}Sender },
 ) {
   const obj = fn({ $: meta.senderFn });
   return Object.assign(obj, { $: meta.senderFn });
 }
 
-export const ${svc.name}Service = Object.assign(fn${svc.name}Service, {
-  SENDER: ${svc.name}ServiceSender,
+export const ${svc.name} = Object.assign(fn${svc.name}, {
+  SENDER: ${svc.name}Sender,
 });
 `;
   });
@@ -259,13 +259,13 @@ ${x.name}(handler: (${
 
 export function createClient(
   options: { url: string, params?: Record<string, string> },
-  onConnect: (client: MainClient) => void,
+  onConnect: (client: MainServiceClient) => void,
 ) {
   const socket = io(options.url, { query: options.params });
 
   socket.once('connect', () => {
     const socketClient = new SocketClient(socket);
-    onConnect(new MainClient(socketClient));
+    onConnect(new MainServiceClient(socketClient));
   });
 
   return () => { socket.disconnect(); }

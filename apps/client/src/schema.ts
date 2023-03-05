@@ -28,10 +28,10 @@ class SocketClient {
   }
 }
 
-export class MainClient {
-  readonly child: ChildClient;
+export class MainServiceClient {
+  readonly child: ChildServiceClient;
   constructor(private socket: SocketClient) {
-    this.child = new ChildClient(socket);
+    this.child = new ChildServiceClient(socket);
   }
   adder(x: number, y: number): Promise<number> {
     return this.socket.call('adder', x, y);
@@ -45,7 +45,7 @@ export class MainClient {
   }
 }
 
-export class ChildClient {
+export class ChildServiceClient {
   
   constructor(private socket: SocketClient) {
     
@@ -61,13 +61,13 @@ export class ChildClient {
 
 export function createClient(
   options: { url: string, params?: Record<string, string> },
-  onConnect: (client: MainClient) => void,
+  onConnect: (client: MainServiceClient) => void,
 ) {
   const socket = io(options.url, { query: options.params });
 
   socket.once('connect', () => {
     const socketClient = new SocketClient(socket);
-    onConnect(new MainClient(socketClient));
+    onConnect(new MainServiceClient(socketClient));
   });
 
   return () => { socket.disconnect(); }

@@ -1,10 +1,10 @@
 import { DependencyList, useEffect, useState } from 'react';
 import './App.css';
 
-import { createClient, MainClient } from './schema';
+import { createClient, MainServiceClient } from './schema';
 
 function useClient(url: string) {
-  const [client, setClient] = useState<MainClient | null>(null);
+  const [client, setClient] = useState<MainServiceClient | null>(null);
   useEffect(() => {
     return createClient({ url }, c => setClient(c));
   }, [url])
@@ -25,7 +25,7 @@ function useStream<T>(
 }
 
 function TestApp({ client }: {
-  client: MainClient;
+  client: MainServiceClient;
 }) {
   useStream(client.ping.bind(client), (x) => {
     console.log(x);

@@ -3,15 +3,15 @@ struct Person {
   age: int;
 }
 
-service Main {
-  child: Child;
+service MainService {
+  child: ChildService;
 
   adder(x: int, y: int): int;
   hello(p: Person): string;
   ~ping(n: int);
 }
 
-service Child {
+service ChildService {
   hello(): string;
   ~pong(s: string);
 }
