@@ -1,4 +1,4 @@
-import { SophonRouter } from '@sophonjs/server';
+import { SophonRouter } from '@sophon-js/server';
 import { SophonContext } from './schema';
 
 declare module './schema' {

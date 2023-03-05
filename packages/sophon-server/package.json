@@ -1,5 +1,5 @@
 {
-  "name": "@sophonjs/server",
+  "name": "@sophon-js/server",
   "version": "0.0.0",
   "main": "dist/index.js",
   "types": "src/index.ts",

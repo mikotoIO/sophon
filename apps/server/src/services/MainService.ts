@@ -1,5 +1,5 @@
 import { MainService, ChildService } from '../schema';
-import { SophonError } from '@sophonjs/server';
+import { SophonError } from '@sophon-js/server';
 import { sophon } from '../sophon';
 
 const childService = sophon.create(ChildService, {

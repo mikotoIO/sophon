@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: yarn
+      - run: yarn install --frozen-lockfile
       - run: yarn build
         working-directory: ./packages/sophon-cli
       - uses: JS-DevTools/npm-publish@v1

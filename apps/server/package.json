@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "dependencies": {
-    "@sophonjs/server": "*",
+    "@sophon-js/server": "*",
     "socket.io": "^4.6.0"
   },
   "devDependencies": {
