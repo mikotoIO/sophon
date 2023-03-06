@@ -35,6 +35,7 @@ interface SophonRouterConstructorOptions<Context> {
   connect: (obj: {
     id: string;
     readonly params: Record<string, string>;
+    join: (room: string) => void;
   }) => Context;
 }
 
@@ -62,17 +63,37 @@ export class SophonRouter<Context> {
     this.io = io;
     const handler = createHandler(rootService);
     io.on('connection', (socket) => {
-      const ctxSetup = this.options.connect({
-        id: socket.id,
-        params: socket.handshake.query as any,
-      });
-      for (const ctxKey in ctxSetup) {
-        socket.data[ctxKey] = ctxSetup[ctxKey];
+      try {
+        const ctxSetup = this.options.connect({
+          id: socket.id,
+          params: socket.handshake.query as any,
+          join: (room) => socket.join(room),
+        });
+        for (const ctxKey in ctxSetup) {
+          socket.data[ctxKey] = ctxSetup[ctxKey];
+        }
+      } catch (e) {
+        socket.disconnect(true);
+        return;
       }
 
       socket.onAny((event, ...args) => {
         handler(socket, event, ...args);
       });
+    });
+  }
+
+  async joinAll(selector: string, target: string) {
+    const sockets = await this.io.in(selector).fetchSockets();
+    sockets.forEach((s) => {
+      s.join(target)
+    });
+  }
+
+  async leaveAll(selector: string, target: string) {
+    const sockets = await this.io.in(selector).fetchSockets();
+    sockets.forEach((s) => {
+      s.leave(target)
     });
   }
 }
