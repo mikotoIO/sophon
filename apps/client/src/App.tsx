@@ -45,7 +45,11 @@ function TestApp({ client }: {
         <button
           onClick={async () => {
             // client.main.adder(2, 3).then((r) => console.log(r));
-            console.log(await client.hello({ name: 'Bob', age: 20 }));
+            try {
+              console.log(await client.hello({ name: 'Bob', age: 20 }));
+            } catch (e) {
+              console.error(e);
+            }
           }}
         >
           count is {count}

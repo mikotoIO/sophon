@@ -1,6 +1,6 @@
 {
   "name": "@sophon-js/cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Real-time typesafe API anywhere.",
   "author": "TheCactusBlue @Randomness",
   "bin": {
@@ -20,6 +20,7 @@
     "@oclif/core": "^2",
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-plugins": "^2.3.0",
+    "prettier": "^2.8.8",
     "ts-creator": "^1.2.5",
     "ts-morph": "^17.0.1",
     "typescript-parsec": "^0.3.2"
@@ -29,6 +30,7 @@
     "@types/chai": "^4",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.18.11",
+    "@types/prettier": "^2.7.3",
     "chai": "^4",
     "eslint": "^7.32.0",
     "eslint-config-oclif": "^4",
