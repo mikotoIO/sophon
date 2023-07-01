@@ -134,7 +134,7 @@ export function typescriptSocketIOServer(tree: ASTTopLevel[]): string {
       public constructor(protected sophonCore: SophonCore<SophonContext>) {
         this.$ = (room) => new ${svc.name}Sender(sophonCore.senderCore, room);
       }
-      ${ts(services.map((s) => `abstract ${s.name}: I${s.type};`))}
+      ${ts(services.map((s) => `abstract ${s.name}: Abstract${s.type};`))}
       ${ts(
           methods.map(
             (m) =>
