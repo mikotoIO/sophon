@@ -19,9 +19,12 @@ export function createHandler(
     if (!service) return;
     const handler = (service as any)[method!];
     if (handler) {
-      const result = handler(new SophonInstance(socket), ...args);
+      const boundHandler = handler.bind(service);
+      const result = boundHandler(new SophonInstance(socket), ...args);
       result
-        .then((x: any) => cb({ok: x}))
+        .then((x: any) => {
+          cb({ok: x})
+        })
         .catch((e: any) => {
           cb({ err: e });
         });
@@ -39,30 +42,17 @@ interface SophonRouterConstructorOptions<Context> {
   }) => Context;
 }
 
-export class SophonRouter<Context> {
-  private io!: Server;
-  private options: SophonRouterConstructorOptions<Context>;
-
-  constructor(options: SophonRouterConstructorOptions<Context>) {
-    this.options = options;
+// the newer API
+export class SophonCore<Context> {
+  public senderCore: SenderCore;
+  constructor(private io: Server, private options: SophonRouterConstructorOptions<Context>) {
+    this.senderCore = new SenderCore(io);
   }
 
-  create<T, S>(
-    creator: ((fn: () => T, meta: any) => any) & {
-      SENDER: { new (sender: SenderCore, room: string): S };
-    },
-    fn: T,
-  ) {
-    return creator(() => fn, {
-      senderFn: (room: string) =>
-        new creator.SENDER(new SenderCore(this.io), room),
-    }) as T & { $: Sender<S> };
-  }
-
-  mount(io: Server, rootService: any) {
-    this.io = io;
+  boot(rootService: any) {
     const handler = createHandler(rootService);
-    io.on('connection', (socket) => {
+    this.io.on('connection', (socket) => {
+      // setup socket context
       try {
         const ctxSetup = this.options.connect({
           id: socket.id,
@@ -77,23 +67,26 @@ export class SophonRouter<Context> {
         return;
       }
 
+      // TODO: Explain handler
       socket.onAny((event, ...args) => {
         handler(socket, event, ...args);
       });
     });
   }
 
-  async joinAll(selector: string, target: string) {
-    const sockets = await this.io.in(selector).fetchSockets();
-    sockets.forEach((s) => {
-      s.join(target)
+  joinAll(selector: string, target: string) {
+    return this.io.in(selector).fetchSockets().then((sockets) => {
+      sockets.forEach((s) => {
+        s.join(target)
+      });
     });
   }
 
-  async leaveAll(selector: string, target: string) {
-    const sockets = await this.io.in(selector).fetchSockets();
-    sockets.forEach((s) => {
-      s.leave(target)
+  leaveAll(selector: string, target: string) {
+    return this.io.in(selector).fetchSockets().then((sockets) => {
+      sockets.forEach((s) => {
+        s.leave(target)
+      });
     });
   }
 }
