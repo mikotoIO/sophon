@@ -2426,6 +2426,7 @@ __metadata:
     socket.io-client: ^4.6.0
     typescript: ^4.9.3
     vite: ^4.1.0
+    zod: ^3.21.4
   languageName: unknown
   linkType: soft
 
@@ -4612,6 +4613,15 @@ __metadata:
   checksum: f6d020ac552e9d048668206c805a737262b4c395546c773cceea3bc45252c46b4fa6eeb67c5896499dad00d21cb2f20f89fdd480a4529cfa3d012da2957162f9
   languageName: node
   linkType: hard
+
+"hyperschema@workspace:packages/hyperschema":
+  version: 0.0.0-use.local
+  resolution: "hyperschema@workspace:packages/hyperschema"
+  dependencies:
+    typescript: ^4.9.5
+    zod: ^3.21.4
+  languageName: unknown
+  linkType: soft
 
 "iconv-lite@npm:^0.4.24":
   version: 0.4.24
@@ -7420,6 +7430,7 @@ __metadata:
     "@sophon-js/server": "*"
     socket.io: ^4.6.0
     typescript: ^4.9.5
+    zod: ^3.21.4
   languageName: unknown
   linkType: soft
 
@@ -9048,5 +9059,12 @@ __metadata:
   bin:
     yosay: cli.js
   checksum: 7e0220ef1321a9f0db4632fb564ff0bad66523bd22bb5cd6435886145bba284a4c1f651f51d629f4a904c79b0bbf13940fee1e127746f9f20b3e5eae8336c6cb
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.21.4":
+  version: 3.21.4
+  resolution: "zod@npm:3.21.4"
+  checksum: f185ba87342ff16f7a06686767c2b2a7af41110c7edf7c1974095d8db7a73792696bcb4a00853de0d2edeb34a5b2ea6a55871bc864227dace682a0a28de33e1f
   languageName: node
   linkType: hard
