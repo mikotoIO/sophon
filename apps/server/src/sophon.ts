@@ -18,7 +18,7 @@ const io = new Server(httpServer, {
 });
 
 export const sophon = new SophonCore<SophonContext>(io, {
-  connect: ({}) => {
+  async connect({}) {
     console.log('connected');
     return {
       count: 0,
