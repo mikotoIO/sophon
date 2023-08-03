@@ -39,7 +39,7 @@ interface SophonRouterConstructorOptions<Context> {
     id: string;
     readonly params: Record<string, string>;
     join: (room: string) => void;
-  }) => Context;
+  }) => Context | Promise<Context>;
 
   disconnect?: (ctx: Context) => void;
 }
@@ -56,10 +56,10 @@ export class SophonCore<Context> {
 
   boot(rootService: any) {
     const handler = createHandler(rootService);
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', async (socket) => {
       // setup socket context
       try {
-        const ctxSetup = this.options.connect({
+        const ctxSetup = await this.options.connect({
           id: socket.id,
           params: socket.handshake.query as any,
           join: (room) => socket.join(room),
@@ -67,6 +67,7 @@ export class SophonCore<Context> {
         for (const ctxKey in ctxSetup) {
           socket.data[ctxKey] = ctxSetup[ctxKey];
         }
+        socket.emit('ready');
       } catch (e) {
         socket.disconnect(true);
         return;
