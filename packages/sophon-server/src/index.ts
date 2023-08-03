@@ -23,7 +23,7 @@ export function createHandler(
       const result = boundHandler(new SophonInstance(socket), ...args);
       result
         .then((x: any) => {
-          cb({ok: x})
+          cb({ ok: x });
         })
         .catch((e: any) => {
           cb({ err: e });
@@ -40,12 +40,17 @@ interface SophonRouterConstructorOptions<Context> {
     readonly params: Record<string, string>;
     join: (room: string) => void;
   }) => Context;
+
+  disconnect?: (ctx: Context) => void;
 }
 
 // the newer API
 export class SophonCore<Context> {
   public senderCore: SenderCore;
-  constructor(private io: Server, private options: SophonRouterConstructorOptions<Context>) {
+  constructor(
+    private io: Server,
+    private options: SophonRouterConstructorOptions<Context>,
+  ) {
     this.senderCore = new SenderCore(io);
   }
 
@@ -67,6 +72,10 @@ export class SophonCore<Context> {
         return;
       }
 
+      this.io.on('disconnect', () => {
+        this.options.disconnect?.(socket.data as any);
+      });
+
       // TODO: Explain handler
       socket.onAny((event, ...args) => {
         handler(socket, event, ...args);
@@ -75,19 +84,25 @@ export class SophonCore<Context> {
   }
 
   joinAll(selector: string, target: string) {
-    return this.io.in(selector).fetchSockets().then((sockets) => {
-      sockets.forEach((s) => {
-        s.join(target)
+    return this.io
+      .in(selector)
+      .fetchSockets()
+      .then((sockets) => {
+        sockets.forEach((s) => {
+          s.join(target);
+        });
       });
-    });
   }
 
   leaveAll(selector: string, target: string) {
-    return this.io.in(selector).fetchSockets().then((sockets) => {
-      sockets.forEach((s) => {
-        s.leave(target)
+    return this.io
+      .in(selector)
+      .fetchSockets()
+      .then((sockets) => {
+        sockets.forEach((s) => {
+          s.leave(target);
+        });
       });
-    });
   }
 }
 
