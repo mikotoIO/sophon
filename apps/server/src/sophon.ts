@@ -19,13 +19,18 @@ const io = new Server(httpServer, {
 
 export const sophon = new SophonCore<SophonContext>(io, {
   connect: ({}) => {
+    console.log('connected');
     return {
       count: 0,
     };
   },
+  disconnect: (o) => {
+    console.log('disconnected');
+    console.log(o);
+  },
 });
 
-sophon.boot(new MainService(sophon))
+sophon.boot(new MainService(sophon));
 
 export function boot(port: number, cb: () => void) {
   httpServer.listen(port, cb);
