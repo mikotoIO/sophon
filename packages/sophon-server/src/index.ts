@@ -72,13 +72,13 @@ export class SophonCore<Context> {
         return;
       }
 
-      this.io.on('disconnect', () => {
-        this.options.disconnect?.(socket.data as any);
-      });
-
       // TODO: Explain handler
       socket.onAny((event, ...args) => {
         handler(socket, event, ...args);
+      });
+
+      socket.on('disconnecting', () => {
+        this.options.disconnect?.(socket.data as any);
       });
     });
   }
