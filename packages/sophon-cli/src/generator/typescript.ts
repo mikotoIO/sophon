@@ -291,8 +291,9 @@ ${x.name}(handler: (${
 )}
 
 export function createClient(
-  options: { url: string, params?: Record<string, string> },
+  options: { url: string; params?: Record<string, string> },
   onConnect: (client: MainServiceClient) => void,
+  onDisconnect?: () => void,
 ) {
   const socket = io(options.url, { query: options.params });
 
@@ -301,7 +302,13 @@ export function createClient(
     onConnect(new MainServiceClient(socketClient));
   });
 
-  return () => { socket.disconnect(); }
+  socket.on('disconnect', () => {
+    onDisconnect?.();
+  });
+
+  return () => {
+    socket.disconnect();
+  };
 }
 `.build();
   return prettier.format(final, { parser: 'typescript' });
