@@ -1,6 +1,6 @@
 {
   "name": "@sophon-js/cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Real-time typesafe API anywhere.",
   "author": "TheCactusBlue @Randomness",
   "bin": {
