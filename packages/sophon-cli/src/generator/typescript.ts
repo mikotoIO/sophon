@@ -226,16 +226,12 @@ ${tg.genStructs()}
 class SocketClient {
   constructor(public socket: Socket) {}
 
-  call(event: string, ...args: any[]): any {
-    return new Promise((resolve, reject) => {
-      this.socket.emit(event, ...args, (x: any) => {
-        if (x.err !== undefined) {
-          reject(x.err);
-        } else {
-          resolve(x.ok);
-        }
-      });
-    });
+  async call(event: string, ...args: any[]): Promise<any> {
+    const res = await this.socket.emitWithAck(event, ...args);
+    if (res && res.err) {
+      throw res.err;
+    }
+    return res.ok;
   }
 
   subscribe(ev: string, handler: any) {
