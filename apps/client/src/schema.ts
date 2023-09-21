@@ -59,15 +59,30 @@ export class ChildServiceClient {
   }
 }
 
-export function createClient(
-  options: { url: string; params?: Record<string, string> },
-  onConnect: (client: MainServiceClient) => void
-) {
+interface CreateClientOptions {
+  url: string;
+  params?: Record<string, string>;
+  onReady?: (client: MainServiceClient) => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+}
+
+export function createClient(options: CreateClientOptions) {
   const socket = io(options.url, { query: options.params });
 
   socket.once("connect", () => {
-    const socketClient = new SocketClient(socket);
-    onConnect(new MainServiceClient(socketClient));
+    socket.once("ready", () => {
+      const socketClient = new SocketClient(socket);
+      options.onReady?.(new MainServiceClient(socketClient));
+    });
+  });
+
+  socket.on("connect", () => {
+    options.onConnect?.();
+  });
+
+  socket.on("disconnect", () => {
+    options.onDisconnect?.();
   });
 
   return () => {
